@@ -69,7 +69,7 @@ async def start_server():
 	app = web.Application()
 	app.on_response_prepare.append(on_prepare)
 	app.add_routes([
-		web.get("/", request_mtalive)
+		web.get("/mtalive", request_mtalive)
 	])
 	runner = web.AppRunner(app)
 	await runner.setup()

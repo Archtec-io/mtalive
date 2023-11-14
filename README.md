@@ -2,6 +2,8 @@
 
 A simple process alive checker w/ webserver support.
 
+The server will listen on `ADDRESS:PORT/mtalive`
+
 ### Preinstalled dependencies
 You must have the following packets installed:
 
