@@ -1,4 +1,5 @@
 import os
+import signal
 import sys
 import logging
 import time
@@ -9,7 +10,7 @@ from aiohttp import web
 minetest_running = False
 last_check = 0
 http_status = 200
-check_interval = 15
+check_interval = 10
 
 minetest_path = os.getenv("mtalive_minetest_path")
 listening_address = os.getenv("mtalive_listening_address") or "127.0.0.1"
@@ -20,20 +21,15 @@ log_level = logging.INFO
 if minetest_path is None:
 	sys.exit("No 'mtalive_minetest_path' environment variable set")
 
-print(f"minetest_path (-e) '{minetest_path}'")
-print(f"listening_address (-a) '{listening_address}'")
-print(f"listening_port (-p) '{listening_port}'")
+def signal_term_handler():
+    logging.info("Got SIGTERM...")
+    sys.exit(0)
 
 def prepare_logging():
 	script_path = os.path.dirname(os.path.abspath(__file__))
 	log_filename = os.path.join(script_path, "mtalive.log")
 	logging.root.handlers = []
 	logging.basicConfig(filename = log_filename, level = log_level, format = "%(asctime)s : %(levelname)s : %(funcName)s : %(message)s")
-	console = logging.StreamHandler()
-	console.setLevel(log_level)
-	formatter = logging.Formatter("%(asctime)s : %(levelname)s : %(funcName)s : %(message)s")
-	console.setFormatter(formatter)
-	logging.getLogger("").addHandler(console)
 
 async def check_process():
 	global minetest_running
@@ -79,9 +75,13 @@ async def start_server():
 
 try:
 	prepare_logging()
+	logging.info(f"minetest_path '{minetest_path}'")
+	logging.info(f"listening_address '{listening_address}'")
+	logging.info(f"listening_port '{listening_port}'")
 	last_check = time.time() - check_interval
 	logging.info("Starting mtalive")
 	loop = asyncio.get_event_loop()
+	loop.add_signal_handler(signal.SIGTERM, signal_term_handler)
 	loop.create_task(start_server())
 	loop.run_forever()
 except (KeyboardInterrupt, SystemExit):
