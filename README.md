@@ -16,14 +16,16 @@ To install mtalive, clone the repo and run `update.sh`.
 
 To update mtalive, simply run `update.sh` again.
 
-#### Run
+### Run
 Params:
-- `-e` mtalive_minetest_path (required)
-- `-a` mtalive_listening_address (optional, defaults to `127.0.0.1`)
-- `-p` mtalive_listening_port (optional, defaults to `3000`)
+1. `minetest_path` (required)
+2. `listening_address` (optional, defaults to `127.0.0.1`)
+3. `listening_port` (optional, defaults to `3000`)
+
+(The order of params is important)
 
 ```bash
-./run.sh -e /home/nik/minetest/bin/minetest -a 127.0.0.1 -p 80
+./mtalive/env/bin/python3 mtalive.py /home/user/minetest/bin/minetest 127.0.0.1 3000
 ```
 
-**You don't have to** set the `source` first, the script will do that for you.
+Make sure to activate the Python venv/use the Python binary from the `env` folder.

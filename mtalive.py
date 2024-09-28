@@ -12,14 +12,14 @@ last_check = 0
 http_status = 200
 check_interval = 10
 
-minetest_path = os.getenv("mtalive_minetest_path")
-listening_address = os.getenv("mtalive_listening_address") or "127.0.0.1"
-listening_port = os.getenv("mtalive_listening_port") or 3000
+minetest_path = sys.argv[1]
+listening_address = sys.argv[2] or "127.0.0.1"
+listening_port = sys.argv[3] or 3000
 
 log_level = logging.INFO
 
 if minetest_path is None:
-	sys.exit("No 'mtalive_minetest_path' environment variable set")
+	sys.exit("No 'minetest_path' set")
 
 def signal_term_handler():
     logging.info("Got SIGTERM...")
