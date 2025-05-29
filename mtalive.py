@@ -22,8 +22,8 @@ if luanti_path is None:
 	sys.exit("No 'luanti_path' set")
 
 def signal_term_handler():
-    logging.info("Got SIGTERM...")
-    sys.exit(0)
+	logging.info("Got SIGTERM...")
+	asyncio.get_event_loop().stop()
 
 def prepare_logging():
 	script_path = os.path.dirname(os.path.abspath(__file__))
@@ -80,7 +80,7 @@ try:
 	logging.info(f"listening_port '{listening_port}'")
 	last_check = time.time() - check_interval
 	logging.info("Starting mtalive")
-	loop = asyncio.get_event_loop()
+	loop = asyncio.new_event_loop()
 	loop.add_signal_handler(signal.SIGTERM, signal_term_handler)
 	loop.create_task(start_server())
 	loop.run_forever()
