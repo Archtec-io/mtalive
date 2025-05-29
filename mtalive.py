@@ -7,19 +7,19 @@ import psutil
 import asyncio
 from aiohttp import web
 
-minetest_running = False
+luanti_running = False
 last_check = 0
 http_status = 200
 check_interval = 10
 
-minetest_path = sys.argv[1]
-listening_address = sys.argv[2] or "127.0.0.1"
-listening_port = sys.argv[3] or 3000
+luanti_path = sys.argv[1]
+listening_address = sys.argv[2] if len(sys.argv) > 2 else "127.0.0.1"
+listening_port = sys.argv[3] if len(sys.argv) > 3 else 3000
 
 log_level = logging.INFO
 
-if minetest_path is None:
-	sys.exit("No 'minetest_path' set")
+if luanti_path is None:
+	sys.exit("No 'luanti_path' set")
 
 def signal_term_handler():
     logging.info("Got SIGTERM...")
@@ -32,31 +32,31 @@ def prepare_logging():
 	logging.basicConfig(filename = log_filename, level = log_level, format = "%(asctime)s : %(levelname)s : %(funcName)s : %(message)s")
 
 async def check_process():
-	global minetest_running
+	global luanti_running
 	global last_check
 	global http_status
 	logging.debug("Checking processes...")
 	last_check = time.time()
-	found_minetest = False
+	found_luanti = False
 	for proc in psutil.process_iter():
 		try:
-			if proc.exe() == minetest_path:
-				found_minetest = True
-				minetest_running = True
+			if proc.exe() == luanti_path:
+				found_luanti = True
+				luanti_running = True
 				http_status = 200
-				logging.debug("Found Minetest process.")
+				logging.debug("Found Luanti process.")
 				break
 		except (psutil.AccessDenied, psutil.ZombieProcess, psutil.NoSuchProcess):
 			pass
-	if not found_minetest:
-		logging.warning("No Minetest process found!")
-		minetest_running = False
+	if not found_luanti:
+		logging.warning("No Luanti process found!")
+		luanti_running = False
 		http_status = 503
 
 async def request_mtalive(request):
 	if time.time() - last_check >= check_interval:
 		await check_process()
-	return web.Response(text = str(minetest_running).lower()+str("\n"), status = http_status)
+	return web.Response(text = str(luanti_running).lower()+str("\n"), status = http_status)
 
 async def on_prepare(request, response):
 	del response.headers["Server"]
@@ -75,7 +75,7 @@ async def start_server():
 
 try:
 	prepare_logging()
-	logging.info(f"minetest_path '{minetest_path}'")
+	logging.info(f"luanti_path '{luanti_path}'")
 	logging.info(f"listening_address '{listening_address}'")
 	logging.info(f"listening_port '{listening_port}'")
 	last_check = time.time() - check_interval
